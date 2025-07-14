@@ -45,17 +45,19 @@ const SignUpPage = () => {
       }
 
       if (data.user) {
-        // User created, but might need email confirmation depending on Supabase settings
         setMessage('Sign up successful! Please check your email to confirm your account.');
-        // Optionally, redirect after a short delay or once email is confirmed
-        // router.push('/auth/signin');
+        router.push('/auth/signin'); // Redirect to sign-in page after successful sign up
       } else {
-        // This case might happen if email confirmation is required and user is not immediately signed in
         setMessage('Sign up initiated. Please check your email for a confirmation link.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) { // Changed 'any' to 'unknown'
       console.error('Unexpected Sign Up Error:', err);
-      setError(err.message || 'An unexpected error occurred during sign up.');
+      // Safely access error message
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred during sign up.');
+      }
     } finally {
       setLoading(false);
     }

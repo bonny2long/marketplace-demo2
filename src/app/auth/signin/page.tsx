@@ -38,9 +38,14 @@ const SignInPage = () => {
 
       // If sign-in is successful, redirect to the homepage
       router.push('/');
-    } catch (err: any) {
+    } catch (err: unknown) { // Changed 'any' to 'unknown'
       console.error('Unexpected Sign In Error:', err);
-      setError(err.message || 'An unexpected error occurred during sign in.');
+      // Safely access error message
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred during sign in.');
+      }
     } finally {
       setLoading(false);
     }
@@ -103,7 +108,7 @@ const SignInPage = () => {
 
           {/* Link to Sign Up Page */}
           <p className="text-center text-sm text-gray-600 mt-4">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '} {/* Fixed: Replaced ' with &apos; */}
             <Link href="/auth/signup" className="text-blue-600 hover:underline">
               Sign Up
             </Link>

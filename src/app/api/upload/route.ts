@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase'; // Import your Supabase client
 import { v4 as uuidv4 } from 'uuid'; // For generating unique file names
 
-
 /**
  * POST /api/upload
  * Handles image uploads to Supabase Storage.
@@ -20,7 +19,7 @@ export async function POST(request: Request) {
     const uploadedFileUrls: string[] = [];
 
     // Iterate over all files in the FormData
-    for (const [key, value] of formData.entries()) {
+    for (const [_, value] of formData.entries()) { // Changed 'key' to '_'
       if (value instanceof Blob) { // Check if the value is a File (which is a Blob)
         const file = value as File;
 
@@ -38,7 +37,7 @@ export async function POST(request: Request) {
         const arrayBuffer = await file.arrayBuffer();
 
         // Upload the file to the 'listing-images' bucket
-        const { data, error } = await supabase.storage
+        const { data: uploadData, error } = await supabase.storage // Renamed 'data' to 'uploadData'
           .from('listing-images') // Your bucket name
           .upload(uniqueFileName, arrayBuffer, {
             contentType: file.type,
@@ -47,10 +46,11 @@ export async function POST(request: Request) {
 
         if (error) {
           console.error(`Supabase upload error for ${file.name}:`, error);
-          // If a single file fails, we might still want to return other successful uploads
-          // or return an error for the batch. For now, we'll return a 500.
           return NextResponse.json({ error: `Failed to upload ${file.name}: ${error.message}` }, { status: 500 });
         }
+
+        // The 'uploadData' variable is not directly used after this, but its existence is fine.
+        // It's common to destructure 'data' even if only 'error' is immediately checked.
 
         // Get the public URL of the uploaded file
         const { data: publicUrlData } = supabase.storage
