@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'; // Shadcn UI Textarea
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Shadcn UI Select
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Shadcn UI Card
 import { Label } from '@/components/ui/label'; // Shadcn UI Label
-import ImageUpload from '@/components/marketplace/image-upload'; // Import the ImageUpload component
+import ImageUpload from '@/components/marketplace/ImageUpload'; // Import the ImageUpload component
 import Image from 'next/image'; // Next.js Image component for preview
 import { UploadCloud, Loader2 } from 'lucide-react'; // Removed Frown, Import UploadCloud, Loader2
 import { useAuth } from '@/context/auth'; // Import useAuth hook
