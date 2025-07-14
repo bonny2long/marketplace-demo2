@@ -51,9 +51,13 @@ const ItemDetailPage = () => {
       }
       const data: Listing = await response.json();
       setItem(data);
-    } catch (err: any) {
+    } catch (err: unknown) { // Changed 'any' to 'unknown'
       console.error('Error fetching item details:', err);
-      setError(err.message || 'Could not load item details. Please try again.');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred while loading item details.');
+      }
     } finally {
       setLoading(false);
     }
@@ -110,9 +114,13 @@ const ItemDetailPage = () => {
       alert('Message sent successfully!');
       setMessageContent('');
       setShowContactModal(false);
-    } catch (err: any) {
+    } catch (err: unknown) { // Changed 'any' to 'unknown'
       console.error('Error sending message:', err);
-      alert(`Failed to send message: ${err.message}`);
+      if (err instanceof Error) {
+        alert(`Failed to send message: ${err.message}`);
+      } else {
+        alert('An unexpected error occurred while sending message.');
+      }
     } finally {
       setIsSendingMessage(false);
     }
@@ -217,7 +225,7 @@ const ItemDetailPage = () => {
               <Button
                 onClick={() => setShowContactModal(true)}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md text-lg transition-colors duration-200"
-                disabled={authLoading || !user} // Disable if auth is loading or no user
+                disabled={authLoading || !user}
               >
                 <MessageSquare size={20} className="mr-2" />
                 {authLoading ? 'Checking Auth...' : user ? 'Contact Seller' : 'Sign In to Message'}

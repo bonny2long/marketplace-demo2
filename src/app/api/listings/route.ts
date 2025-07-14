@@ -19,8 +19,6 @@ interface NewListing {
  */
 export async function GET(_request: Request) { // Changed 'request' to '_request'
   try {
-    // For now, fetch all listings.
-    // In a real app, you'd add pagination, filtering, and sorting based on query params.
     const { data, error } = await supabase
       .from('listings')
       .select('*') // Select all columns
@@ -43,9 +41,9 @@ export async function GET(_request: Request) { // Changed 'request' to '_request
  * Creates a new listing in the Supabase database.
  * Expects listing details in the request body.
  */
-export async function POST(_request: Request) { // Changed 'request' to '_request'
+export async function POST(request: Request) { // Reverted to 'request' as it is used
   try {
-    const body: NewListing = await _request.json(); // Use _request here
+    const body: NewListing = await request.json(); // Use 'request' here
 
     // Basic validation for required fields
     if (!body.title || !body.price || !body.category || !body.seller_email) {

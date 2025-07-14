@@ -8,9 +8,9 @@ import { Textarea } from '@/components/ui/textarea'; // Shadcn UI Textarea
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Shadcn UI Select
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Shadcn UI Card
 import { Label } from '@/components/ui/label'; // Shadcn UI Label
-import ImageUpload from '@/components/marketplace/ImageUpload'; // Import the ImageUpload component
+import ImageUpload from '@/components/marketplace/image-upload'; // Import the ImageUpload component
 import Image from 'next/image'; // Next.js Image component for preview
-import { UploadCloud, Loader2, Frown } from 'lucide-react'; // Import UploadCloud, Loader2, Frown for loading/error
+import { UploadCloud, Loader2 } from 'lucide-react'; // Removed Frown, Import UploadCloud, Loader2
 import { useAuth } from '@/context/auth'; // Import useAuth hook
 
 // CreateItemPage component for submitting a new item for sale
@@ -178,9 +178,13 @@ const CreateItemPage = () => {
 
       alert('Your listing has been created successfully!');
       router.push('/');
-    } catch (err: any) {
+    } catch (err: unknown) { // Changed 'any' to 'unknown'
       console.error('Submission error:', err);
-      alert(`Error creating listing: ${err.message}`);
+      if (err instanceof Error) {
+        alert(`Error creating listing: ${err.message}`);
+      } else {
+        alert('An unexpected error occurred during listing creation.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -409,7 +413,7 @@ const CreateItemPage = () => {
               <p><strong>Category:</strong> {formData.category || 'N/A'}</p>
               <p><strong>Condition:</strong> {formData.condition || 'N/A'}</p>
               <p><strong>Location:</strong> {formData.location || 'N/A'}</p>
-              <p><strong>Contact:</strong> {user?.email || formData.contactEmail || 'N/A'}</p> {/* Show user email if logged in */}
+              <p><strong>Contact:</strong> {user?.email || formData.contactEmail || 'N/A'}</p>
             </div>
 
             {/* Description Preview */}

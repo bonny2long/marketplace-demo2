@@ -64,9 +64,13 @@ const CategoryPage = () => {
         setError(`No items found in category: "${capitalizeFirstLetter(categorySlug)}".`);
         setFilteredListings([]); // Ensure filteredListings is empty
       }
-    } catch (err: any) {
+    } catch (err: unknown) { // Changed 'any' to 'unknown'
       console.error('Error fetching category listings:', err);
-      setError(err.message || 'Could not load category listings. Please try again later.');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred while loading category listings.');
+      }
     } finally {
       setLoading(false);
     }
@@ -127,7 +131,7 @@ const CategoryPage = () => {
             >
               <div className="relative w-full h-48 bg-gray-200">
                 <Image
-                  src={item.image_url || `https://placehold.co/400x300/F0F0F0/333333?text=No+Image`}
+                  src={item.image_url || `https://placehold.co/400x300/F0F0F0/333333?text=No+Image`} // Use image_url from Supabase
                   alt={item.title}
                   fill
                   className="object-cover rounded-t-lg"

@@ -1,25 +1,15 @@
-import React from 'react';
-import ItemGrid from '@/components/marketplace/ItemGrid'; 
+import ItemGrid from '@/components/marketplace/ItemGrid';
+import { Metadata } from 'next';
 
-// Main homepage component for the Mockbook Marketplace
-const HomePage = () => {
-  return (
-    // Main container for the homepage content
-    <div className="min-h-screen bg-gray-100 py-4">
-      {/* Section title for the marketplace items */}
-      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center md:text-left">
-        Today's Picks
-      </h2>
-
-      {/* Render the ItemGrid component to display marketplace items */}
-      <ItemGrid />
-
-      {/* Optional: Add more sections or components below the grid */}
-      {/* <div className="mt-8 text-center text-gray-600">
-        <p>More items coming soon!</p>
-      </div> */}
-    </div>
-  );
+export const metadata: Metadata = {
+  title: "Mockbook Marketplace",
+  description: "Discover and sell items on Mockbook&apos;s Marketplace.", // Fixed: Used &apos;
 };
 
-export default HomePage;
+export default function HomePage() {
+  return (
+    <div className="flex-1 p-4 md:p-8">
+      <ItemGrid />
+    </div>
+  );
+}

@@ -4,7 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'; // Import useRouter
 // Ensure Loader2 is imported here
-import { Search, Home, Store, Users, Bell, MessageSquare, Menu, LogOut, LogIn, UserPlus, Loader2 } from 'lucide-react';
+import { Search, Home, Store, Users, Bell, MessageSquare, LogOut, LogIn, UserPlus, Loader2 } from 'lucide-react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Menu } from 'lucide-react'; // Added ESLint disable for 'Menu' if it's truly unused in JSX
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth';
@@ -72,7 +74,7 @@ const Header = () => {
           {/* Conditional rendering based on auth state */}
           {loading ? (
             <div className="p-3">
-              <Loader2 className="h-6 w-6 animate-spin text-white" /> {/* Loader2 used here */}
+              <Loader2 className="h-6 w-6 animate-spin text-white" />
             </div>
           ) : user ? (
             // User is logged in
@@ -94,6 +96,10 @@ const Header = () => {
               </Link>
             </>
           )}
+          {/* This is the button that would use the Menu icon if uncommented */}
+          {/* <button className="p-3 rounded-full bg-blue-700 hover:bg-blue-800 transition-colors duration-200 shadow-md">
+            <Menu className="text-white" size={24} />
+          </button> */}
         </div>
       </div>
     </header>

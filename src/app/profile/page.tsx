@@ -49,9 +49,13 @@ const UserProfilePage = () => {
       // Filter listings by the current user's email
       const filtered = allListings.filter(listing => listing.seller_email === email);
       setUserListings(filtered);
-    } catch (err: any) {
+    } catch (err: unknown) { // Changed 'any' to 'unknown'
       console.error('Error fetching user listings:', err);
-      setListingsError(err.message || 'Could not load your listings. Please try again.');
+      if (err instanceof Error) {
+        setListingsError(err.message);
+      } else {
+        setListingsError('An unexpected error occurred while loading your listings.');
+      }
     } finally {
       setListingsLoading(false);
     }
@@ -136,7 +140,7 @@ const UserProfilePage = () => {
       {!listingsLoading && !listingsError && userListings.length === 0 && (
         <div className="flex flex-col justify-center items-center h-48 text-gray-500 text-center max-w-5xl mx-auto">
           <Package size={48} className="mb-4" />
-          <p className="text-xl font-semibold">You haven't listed any items yet.</p>
+          <p className="text-xl font-semibold">You haven&apos;t listed any items yet.</p> {/* Fixed: Used &apos; */}
           <p className="text-md">Start by creating a new listing!</p>
           <Button onClick={() => router.push('/create/item')} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white">
             Create New Listing

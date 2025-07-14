@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Home, PlusCircle, ShoppingBag, Car, Building, Shirt, Gamepad, MoreHorizontal, MessageSquare, Bell, LogOut, LogIn, UserPlus, Loader2, User as UserIcon } from 'lucide-react'; // Added UserIcon for profile link
+import { Home, PlusCircle, ShoppingBag, Car, Building, Shirt, Gamepad, MoreHorizontal, MessageSquare, Bell, LogOut, LogIn, UserPlus, Loader2 } from 'lucide-react';
+// Removed User as UserIcon, as it was not used and caused a warning.
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth';
