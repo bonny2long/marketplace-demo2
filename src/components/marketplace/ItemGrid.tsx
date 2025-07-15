@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'; // Shadcn UI Input for search
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Shadcn UI Select for category filter
 import { Button } from '@/components/ui/button'; // Shadcn UI Button
 import Image from 'next/image'; // Next.js Image component
-import { Search, Frown } from 'lucide-react'; // Icons for search and empty state
+import { Search, Frown, Loader2 } from 'lucide-react'; // Icons for search and empty state, added Loader2
 
 // Define the structure for a marketplace item (matching your Supabase 'listings' table)
 interface Listing {
@@ -45,9 +45,13 @@ const ItemGrid = () => {
       }
       const data: Listing[] = await response.json();
       setListings(data);
-    } catch (err: any) {
+    } catch (err: unknown) { // Changed 'any' to 'unknown'
       console.error('Error fetching listings:', err);
-      setError(err.message || 'Could not load listings. Please try again later.');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Could not load listings. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
@@ -63,7 +67,6 @@ const ItemGrid = () => {
     const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           listing.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           listing.location?.toLowerCase().includes(searchTerm.toLowerCase());
-    // Adjusted filtering logic for 'all' category
     const matchesCategory = selectedCategory === 'all' || listing.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -77,7 +80,7 @@ const ItemGrid = () => {
   return (
     <div className="min-h-[calc(100vh-100px)] flex flex-col p-4 md:p-8 bg-gray-50">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center md:text-left">
-        Today's Picks
+        Today&apos;s Picks {/* Fixed: Used &apos; */}
       </h2>
 
       {/* Search and Filter Section */}
@@ -92,13 +95,12 @@ const ItemGrid = () => {
             className="pl-10 pr-4 py-2 rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 w-full"
           />
         </div>
-        {/* Changed value of "All Categories" SelectItem to "all" */}
         <Select onValueChange={setSelectedCategory} value={selectedCategory}>
           <SelectTrigger className="w-full sm:w-48 rounded-md border border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem> {/* Changed value to "all" */}
+            <SelectItem value="all">All Categories</SelectItem>
             <SelectItem value="electronics">Electronics</SelectItem>
             <SelectItem value="apparel">Apparel</SelectItem>
             <SelectItem value="home-goods">Home Goods</SelectItem>
@@ -115,6 +117,7 @@ const ItemGrid = () => {
 
       {loading && (
         <div className="flex justify-center items-center h-64 text-gray-600">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
           Loading listings...
         </div>
       )}
@@ -151,6 +154,8 @@ const ItemGrid = () => {
                   alt={item.title}
                   fill
                   className="object-cover rounded-t-lg"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Added sizes prop
+                  priority={false} // Not LCP for all items in grid
                   onError={(e) => {
                     e.currentTarget.src = `https://placehold.co/400x300/F0F0F0/333333?text=Image+Error`;
                   }}

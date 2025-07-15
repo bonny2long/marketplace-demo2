@@ -19,7 +19,11 @@ export async function POST(request: Request) {
     const uploadedFileUrls: string[] = [];
 
     // Iterate over all files in the FormData
-    for (const [_, value] of formData.entries()) { // Changed 'key' to '_' to ignore it
+    for (const [
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      _, // Explicitly ignore unused 'key' variable
+      value
+    ] of formData.entries()) {
       if (value instanceof Blob) { // Check if the value is a File (which is a Blob)
         const file = value as File;
 
@@ -37,7 +41,11 @@ export async function POST(request: Request) {
         const arrayBuffer = await file.arrayBuffer();
 
         // Upload the file to the 'listing-images' bucket
-        const { data: _uploadData, error } = await supabase.storage // Renamed 'data' to '_uploadData' to ignore it
+        const {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          data: _uploadData, // Explicitly ignore unused 'data' variable
+          error
+        } = await supabase.storage
           .from('listing-images') // Your bucket name
           .upload(uniqueFileName, arrayBuffer, {
             contentType: file.type,

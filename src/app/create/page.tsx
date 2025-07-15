@@ -4,7 +4,8 @@ import React from 'react';
 import Link from 'next/link'; // Next.js Link component for client-side navigation
 import { Button } from '@/components/ui/button'; // Shadcn UI Button
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Shadcn UI Card
-import { PackagePlus, Home, Car, Building, Shirt, Gamepad } from 'lucide-react'; // Icons for different listing types
+// Removed Home and Shirt as they are not used in this specific component's JSX
+import { PackagePlus, Car, Building, Gamepad } from 'lucide-react'; // Icons for different listing types
 
 // CreateListingPage component for selecting the type of listing
 const CreateListingPage = () => {

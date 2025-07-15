@@ -17,7 +17,10 @@ interface NewListing {
  * Fetches all listings from the Supabase database.
  * Can be extended later to support search and filtering.
  */
-export async function GET(_request: Request) { // Changed 'request' to '_request'
+export async function GET(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _request: Request // Explicitly ignore unused request parameter for GET
+) {
   try {
     const { data, error } = await supabase
       .from('listings')
@@ -41,9 +44,9 @@ export async function GET(_request: Request) { // Changed 'request' to '_request
  * Creates a new listing in the Supabase database.
  * Expects listing details in the request body.
  */
-export async function POST(request: Request) { // Reverted to 'request' as it is used
+export async function POST(request: Request) {
   try {
-    const body: NewListing = await request.json(); // Use 'request' here
+    const body: NewListing = await request.json();
 
     // Basic validation for required fields
     if (!body.title || !body.price || !body.category || !body.seller_email) {

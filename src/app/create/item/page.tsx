@@ -1,55 +1,49 @@
 'use client'; // This component contains interactive forms and state management
 
-import React, { useState, useEffect } from 'react'; // Added useEffect
-import { useRouter } from 'next/navigation'; // For programmatic navigation
-import { Button } from '@/components/ui/button'; // Shadcn UI Button
-import { Input } from '@/components/ui/input'; // Shadcn UI Input
-import { Textarea } from '@/components/ui/textarea'; // Shadcn UI Textarea
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Shadcn UI Select
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Shadcn UI Card
-import { Label } from '@/components/ui/label'; // Shadcn UI Label
-import ImageUpload from '@/components/marketplace/ImageUpload'; // Import the ImageUpload component
-import Image from 'next/image'; // Next.js Image component for preview
-import { UploadCloud, Loader2 } from 'lucide-react'; // Removed Frown, Import UploadCloud, Loader2
-import { useAuth } from '@/context/auth'; // Import useAuth hook
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import ImageUpload from '@/components/marketplace/ImageUpload';
+import Image from 'next/image';
+import { UploadCloud, Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/auth';
 
 // CreateItemPage component for submitting a new item for sale
 const CreateItemPage = () => {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth(); // Get user and auth loading state
+  const { user, loading: authLoading } = useAuth();
 
-  // State to hold form data
   const [formData, setFormData] = useState({
     name: '',
     price: '',
     description: '',
     category: '',
-    condition: '', // This field is not in your Supabase schema, but kept for form
+    condition: '',
     location: '',
-    contactEmail: user?.email || '', // Initialize with user's email if logged in
+    contactEmail: user?.email || '',
     images: [] as File[],
   });
 
-  // Update contactEmail if user logs in/out after component mounts
   useEffect(() => {
     if (user) {
       setFormData((prev) => ({ ...prev, contactEmail: user.email || '' }));
     } else if (!authLoading) {
-      // If auth check is complete and no user, clear email if it was set
       setFormData((prev) => ({ ...prev, contactEmail: '' }));
     }
   }, [user, authLoading]);
 
-
-  // State for form validation errors
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false); // New state for submission loading
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Handle input changes (for text, number, email inputs)
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | React.ChangeEvent<HTMLTextAreaElement>>) => {
-    const { name, value } = e.target;
+  // Corrected type for handleChange to explicitly define target as HTMLInputElement or HTMLTextAreaElement
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target; // TypeScript will now correctly recognize 'name' and 'value'
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error for this field when user starts typing
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[name];
@@ -57,7 +51,6 @@ const CreateItemPage = () => {
     });
   };
 
-  // Handle select changes
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => {
@@ -67,7 +60,6 @@ const CreateItemPage = () => {
     });
   };
 
-  // Handle images change from ImageUpload component
   const handleImagesChange = (files: File[]) => {
     setFormData((prev) => ({ ...prev, images: files }));
     setErrors((prev) => {
@@ -77,7 +69,6 @@ const CreateItemPage = () => {
     });
   };
 
-  // Basic form validation logic
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     if (!formData.name.trim()) newErrors.name = 'Item Name is required.';
@@ -85,8 +76,7 @@ const CreateItemPage = () => {
     if (!formData.description.trim()) newErrors.description = 'Description is required.';
     if (!formData.category) newErrors.category = 'Category is required.';
     if (!formData.location.trim()) newErrors.location = 'Location is required.';
-    // Ensure contactEmail is present and valid, especially if user is not logged in
-    if (!user && !formData.contactEmail.trim()) { // Only validate if not logged in and field is empty
+    if (!user && !formData.contactEmail.trim()) {
       newErrors.contactEmail = 'Contact Email is required.';
     } else if (!user && formData.contactEmail.trim() && !/\S+@\S+\.\S+/.test(formData.contactEmail)) {
       newErrors.contactEmail = 'Invalid email address.';
@@ -94,14 +84,12 @@ const CreateItemPage = () => {
     if (formData.images.length === 0) newErrors.images = 'At least one image is required.';
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // If not logged in, ensure contact email is provided and valid
     if (!user) {
       if (!formData.contactEmail.trim()) {
         alert('Please sign in or provide a contact email to create a listing.');
@@ -119,12 +107,11 @@ const CreateItemPage = () => {
       return;
     }
 
-    setIsSubmitting(true); // Start loading state
+    setIsSubmitting(true);
 
     try {
       let imageUrl: string | null = null;
 
-      // 1. Upload images if any
       if (formData.images.length > 0) {
         const imageFormData = new FormData();
         formData.images.forEach((file) => {
@@ -146,19 +133,17 @@ const CreateItemPage = () => {
         }
       }
 
-      // Determine seller_email: use authenticated user's email, or fallback to form input
       const sellerEmailToUse = user?.email || formData.contactEmail;
       if (!sellerEmailToUse) {
         throw new Error('Seller email is missing. Please sign in or provide it.');
       }
 
-      // 2. Create the listing in the database
       const listingData = {
         title: formData.name,
         price: parseFloat(formData.price),
         description: formData.description,
         category: formData.category,
-        seller_email: sellerEmailToUse, // Use authenticated user's email or form input
+        seller_email: sellerEmailToUse,
         image_url: imageUrl,
         location: formData.location,
       };
@@ -178,7 +163,7 @@ const CreateItemPage = () => {
 
       alert('Your listing has been created successfully!');
       router.push('/');
-    } catch (err: unknown) { // Changed 'any' to 'unknown'
+    } catch (err: unknown) {
       console.error('Submission error:', err);
       if (err instanceof Error) {
         alert(`Error creating listing: ${err.message}`);
@@ -190,7 +175,6 @@ const CreateItemPage = () => {
     }
   };
 
-  // Show loading state for authentication
   if (authLoading) {
     return (
       <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center p-4 md:p-8 bg-gray-50">
