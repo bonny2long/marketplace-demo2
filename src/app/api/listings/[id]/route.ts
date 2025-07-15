@@ -11,10 +11,10 @@ interface UpdateListing {
 }
 
 export async function GET(
-  _request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
-  const { id } = params;
+  const { id } = context.params;
 
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
@@ -28,9 +28,6 @@ export async function GET(
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json({ error: 'Listing not found.' }, { status: 404 });
-      }
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -38,24 +35,24 @@ export async function GET(
       return NextResponse.json({ error: 'Listing not found.' }, { status: 404 });
     }
 
-    return NextResponse.json(data, { status: 200 });
-  } catch (err: unknown) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(data);
+  } catch (err) {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
-  const { id } = params;
+  const { id } = context.params;
 
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
   }
 
   try {
-    const body: UpdateListing = await request.json();
+    const body: UpdateListing = await req.json();
 
     if (Object.keys(body).length === 0) {
       return NextResponse.json({ error: 'No fields provided for update.' }, { status: 400 });
@@ -75,17 +72,17 @@ export async function PUT(
       return NextResponse.json({ error: 'Listing not found or permission denied.' }, { status: 404 });
     }
 
-    return NextResponse.json(data[0], { status: 200 });
-  } catch (err: unknown) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(data[0]);
+  } catch (err) {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
-  const { id } = params;
+  const { id } = context.params;
 
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
@@ -105,8 +102,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Listing not found or permission denied.' }, { status: 404 });
     }
 
-    return NextResponse.json({ message: 'Listing deleted successfully.' }, { status: 200 });
-  } catch (err: unknown) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ message: 'Listing deleted successfully.' });
+  } catch {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
