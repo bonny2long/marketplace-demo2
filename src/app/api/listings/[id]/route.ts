@@ -1,12 +1,5 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase'; // Import your Supabase client
-
-// Define the structure for the context object passed to dynamic route handlers
-interface RouteContext {
-  params: {
-    id: string; // The dynamic segment 'id' from the URL
-  };
-}
 
 // Define the structure for updating a listing
 interface UpdateListing {
@@ -19,16 +12,18 @@ interface UpdateListing {
   // seller_email is used for RLS, but not typically updated via client
 }
 
+// Reusable context type
+type RouteContext = { params: { id: string } };
+
 /**
  * GET /api/listings/[id]
  * Fetches a single listing by its ID from the Supabase database.
  */
 export async function GET(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: Request, // Explicitly ignore unused request parameter for GET
-  context: RouteContext // Use the defined RouteContext interface
+  _request: NextRequest,
+  { params }: RouteContext
 ) {
-  const { id } = context.params; // Access params from the context object
+  const { id } = params;
 
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
@@ -38,28 +33,25 @@ export async function GET(
     const { data, error } = await supabase
       .from('listings')
       .select('*')
-      .eq('id', id) // Filter by the provided ID
-      .single(); // Expect a single row
+      .eq('id', id)
+      .single();
 
     if (error) {
-      // Check for specific Supabase error code for "no rows found" (PGRST116)
       if (error.code === 'PGRST116') {
         console.warn(`Listing with ID ${id} not found.`);
         return NextResponse.json({ error: 'Listing not found.' }, { status: 404 });
       }
-      // Log other Supabase errors
       console.error(`Supabase GET listing by ID (${id}) error:`, error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // If data is null (which can happen if single() finds no row but doesn't throw PGRST116 for some reason)
     if (!data) {
       console.warn(`Listing with ID ${id} not found (data is null).`);
       return NextResponse.json({ error: 'Listing not found.' }, { status: 404 });
     }
 
     return NextResponse.json(data, { status: 200 });
-  } catch (err: unknown) { // Ensure 'unknown' type for catch
+  } catch (err: unknown) {
     console.error(`Unexpected error in GET /api/listings/${id}:`, err);
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 500 });
@@ -71,11 +63,12 @@ export async function GET(
 /**
  * PUT /api/listings/[id]
  * Updates an existing listing by its ID in the Supabase database.
- * Requires the `seller_email` claim in the JWT for Row Level Security.
- * This endpoint will require authentication to work correctly with your RLS policy.
  */
-export async function PUT(request: Request, context: RouteContext) { // Use RouteContext
-  const { id } = context.params; // Access params from the context object
+export async function PUT(
+  request: NextRequest,
+  { params }: RouteContext
+) {
+  const { id } = params;
 
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
@@ -84,17 +77,15 @@ export async function PUT(request: Request, context: RouteContext) { // Use Rout
   try {
     const body: UpdateListing = await request.json();
 
-    // Ensure there's something to update
     if (Object.keys(body).length === 0) {
       return NextResponse.json({ error: 'No fields provided for update.' }, { status: 400 });
     }
 
-    // Attempt to update the listing. RLS will ensure only the owner can update.
     const { data, error } = await supabase
       .from('listings')
       .update(body)
       .eq('id', id)
-      .select(); // Select the updated row
+      .select();
 
     if (error) {
       console.error(`Supabase PUT listing by ID (${id}) error:`, error);
@@ -106,7 +97,7 @@ export async function PUT(request: Request, context: RouteContext) { // Use Rout
     }
 
     return NextResponse.json(data[0], { status: 200 });
-  } catch (err: unknown) { // Ensure 'unknown' type for catch
+  } catch (err: unknown) {
     console.error(`Unexpected error in PUT /api/listings/${id}:`, err);
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 500 });
@@ -118,14 +109,12 @@ export async function PUT(request: Request, context: RouteContext) { // Use Rout
 /**
  * DELETE /api/listings/[id]
  * Deletes a listing by its ID from the Supabase database.
- * This endpoint will require authentication and an RLS policy for deletion to work correctly.
  */
 export async function DELETE(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: Request, // Explicitly ignore unused request parameter for DELETE
-  context: RouteContext // Use RouteContext
+  _request: NextRequest,
+  { params }: RouteContext
 ) {
-  const { id } = context.params; // Access params from the context object
+  const { id } = params;
 
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
@@ -147,7 +136,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ message: 'Listing deleted successfully.' }, { status: 200 });
-  } catch (err: unknown) { // Ensure 'unknown' type for catch
+  } catch (err: unknown) {
     console.error(`Unexpected error in DELETE /api/listings/${id}:`, err);
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 500 });
