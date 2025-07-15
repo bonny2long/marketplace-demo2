@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase'; // Import your Supabase client
 
+// Define the structure for the context object passed to dynamic route handlers
+interface RouteContext {
+  params: {
+    id: string; // The dynamic segment 'id' from the URL
+  };
+}
+
 // Define the structure for updating a listing
 interface UpdateListing {
   title?: string;
@@ -16,9 +23,12 @@ interface UpdateListing {
  * GET /api/listings/[id]
  * Fetches a single listing by its ID from the Supabase database.
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  // Await params before destructuring
-  const { id } = await params; // FIX: Added await here
+export async function GET(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _request: Request, // Explicitly ignore unused request parameter for GET
+  context: RouteContext // Use the defined RouteContext interface
+) {
+  const { id } = context.params; // Access params from the context object
 
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
@@ -49,8 +59,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 
     return NextResponse.json(data, { status: 200 });
-  } catch (err) {
+  } catch (err: unknown) { // Ensure 'unknown' type for catch
     console.error(`Unexpected error in GET /api/listings/${id}:`, err);
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -61,9 +74,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
  * Requires the `seller_email` claim in the JWT for Row Level Security.
  * This endpoint will require authentication to work correctly with your RLS policy.
  */
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
-  // Await params before destructuring
-  const { id } = await params; // FIX: Added await here
+export async function PUT(request: Request, context: RouteContext) { // Use RouteContext
+  const { id } = context.params; // Access params from the context object
 
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
@@ -94,8 +106,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
 
     return NextResponse.json(data[0], { status: 200 });
-  } catch (err) {
+  } catch (err: unknown) { // Ensure 'unknown' type for catch
     console.error(`Unexpected error in PUT /api/listings/${id}:`, err);
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -105,9 +120,12 @@ export async function PUT(request: Request, { params }: { params: { id: string }
  * Deletes a listing by its ID from the Supabase database.
  * This endpoint will require authentication and an RLS policy for deletion to work correctly.
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-  // Await params before destructuring
-  const { id } = await params; // FIX: Added await here
+export async function DELETE(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _request: Request, // Explicitly ignore unused request parameter for DELETE
+  context: RouteContext // Use RouteContext
+) {
+  const { id } = context.params; // Access params from the context object
 
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
@@ -129,8 +147,11 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     }
 
     return NextResponse.json({ message: 'Listing deleted successfully.' }, { status: 200 });
-  } catch (err) {
+  } catch (err: unknown) { // Ensure 'unknown' type for catch
     console.error(`Unexpected error in DELETE /api/listings/${id}:`, err);
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
