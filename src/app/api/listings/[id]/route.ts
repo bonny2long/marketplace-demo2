@@ -12,9 +12,9 @@ interface UpdateListing {
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  const { id } = await context.params;
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
   }
@@ -48,9 +48,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  const { id } = await context.params;
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
   }
@@ -83,9 +83,9 @@ export async function PUT(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  const { id } = await context.params;
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
   }
