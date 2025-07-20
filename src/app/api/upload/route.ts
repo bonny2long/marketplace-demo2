@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       _, // Explicitly ignore unused 'key' variable
       value
-    ] of formData.entries()) {
+    ] of Array.from(formData.entries())) {
       if (value instanceof Blob) { // Check if the value is a File (which is a Blob)
         const file = value as File;
 

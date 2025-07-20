@@ -1,59 +1,39 @@
-import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase'; // Import your Supabase client
+import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
 
-// Define the structure for a new listing (for POST request body)
 interface NewListing {
   title: string;
   description: string;
   price: number;
   category: string;
   seller_email: string;
-  image_url?: string; // Optional, as it might be handled by a separate upload
+  image_url?: string;
   location?: string;
 }
 
-/**
- * GET /api/listings
- * Fetches all listings from the Supabase database.
- * Can be extended later to support search and filtering.
- */
-export async function GET(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _request: Request // Explicitly ignore unused request parameter for GET
-) {
+export async function GET(_request: NextRequest) {
   try {
     const { data, error } = await supabase
       .from('listings')
-      .select('*') // Select all columns
-      .order('created_at', { ascending: false }); // Order by creation date, newest first
-
+      .select('*')
+      .order('created_at', { ascending: false });
     if (error) {
       console.error('Supabase GET listings error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
     return NextResponse.json(data, { status: 200 });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Unexpected error in GET /api/listings:', err);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
-/**
- * POST /api/listings
- * Creates a new listing in the Supabase database.
- * Expects listing details in the request body.
- */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body: NewListing = await request.json();
-
-    // Basic validation for required fields
     if (!body.title || !body.price || !body.category || !body.seller_email) {
       return NextResponse.json({ error: 'Missing required fields (title, price, category, seller_email).' }, { status: 400 });
     }
-
-    // Insert the new listing into the 'listings' table
     const { data, error } = await supabase
       .from('listings')
       .insert([
@@ -67,16 +47,13 @@ export async function POST(request: Request) {
           location: body.location,
         },
       ])
-      .select(); // Select the newly inserted row
-
+      .select();
     if (error) {
       console.error('Supabase POST listing error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
-    // Supabase insert returns an array of inserted rows
-    return NextResponse.json(data[0], { status: 201 }); // Return the first (and only) inserted item
-  } catch (err) {
+    return NextResponse.json(data[0], { status: 201 });
+  } catch (err: unknown) {
     console.error('Unexpected error in POST /api/listings:', err);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
