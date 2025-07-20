@@ -11,7 +11,7 @@ interface NewListing {
   location?: string;
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     const { data, error } = await supabase
       .from('listings')

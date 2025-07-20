@@ -19,7 +19,7 @@ interface NewMessage {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const listingId = searchParams.get('listing_id');
-  // const userEmail = searchParams.get('user_email'); // Removed unused variable
+  // const userEmail = searchParams.get('user_email'); // Available if needed
 
   try {
     let query = supabase.from('messages').select('*');
