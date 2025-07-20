@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
 interface UpdateListing {
@@ -11,10 +11,10 @@ interface UpdateListing {
 }
 
 export async function GET(
-  _request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params;
+  const { id } = await params;
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
   }
@@ -47,10 +47,10 @@ export async function GET(
 }
 
 export async function PUT(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params;
+  const { id } = await params;
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
   }
@@ -82,10 +82,10 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params;
+  const { id } = await params;
   if (!id) {
     return NextResponse.json({ error: 'Listing ID is required.' }, { status: 400 });
   }
